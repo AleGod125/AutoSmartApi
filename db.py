@@ -5,8 +5,10 @@ DATABASE_URL = "postgresql://postgres:1042243376@db.xessdbclpqlupdkrtvvt.supabas
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"sslmode": "require"}
+    connect_args={"sslmode": "require"},
+    pool_pre_ping=True
 )
+
 
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
