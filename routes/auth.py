@@ -1,23 +1,31 @@
-# routes/auth.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from bd import get_db
-from schemas.users import UserCreate, UserLogin
-from services.users_service import signup_service, login_service
+from db import get_db
+from models import User
+from schemas import UserCreate
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
-    try:
-        return signup_service(db, user)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    # Validar si ya existe el email
+    existe = db.query(User).filter(User.email == user.email).first()
+    if existe:
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
 
-@router.post("/login")
-def login(data: UserLogin, db: Session = Depends(get_db)):
-    try:
-        user = login_service(db, data.email, data.password)
-        return {"message": "Login exitoso", "user_id": user.id}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    nuevo = User(
+        name=user.name,
+        email=user.email,
+        password=user.password,
+        phone=user.phone
+    )
+
+    db.add(nuevo)
+    db.commit()
+    db.refresh(nuevo)
+
+    return {
+        "message": "Usuario registrado con éxito",
+        "user_id": nuevo.id,
+        "email": nuevo.email
+    }
