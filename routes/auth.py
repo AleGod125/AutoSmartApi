@@ -8,24 +8,27 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
-    # Validar si ya existe el email
-    existe = db.query(User).filter(User.email == user.email).first()
-    if existe:
-        raise HTTPException(status_code=400, detail="El email ya está registrado")
+    try:
+        existe = db.query(User).filter(User.email == user.email).first()
+        if existe:
+            raise HTTPException(status_code=400, detail="El email ya está registrado")
 
-    nuevo = User(
-        name=user.name,
-        email=user.email,
-        password=user.password,
-        phone=user.phone
-    )
+        nuevo = User(
+            name=user.name,
+            email=user.email,
+            password=user.password,
+            phone=user.phone
+        )
 
-    db.add(nuevo)
-    db.commit()
-    db.refresh(nuevo)
+        db.add(nuevo)
+        db.commit()
+        db.refresh(nuevo)
 
-    return {
-        "message": "Usuario registrado con éxito",
-        "user_id": nuevo.id,
-        "email": nuevo.email
-    }
+        return {
+            "message": "Usuario registrado",
+            "user_id": nuevo.id
+        }
+
+    except Exception as e:
+        print("ERROR SIGNUP:", e)
+        raise HTTPException(status_code=500, detail=str(e))
