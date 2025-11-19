@@ -3,7 +3,6 @@ from repositories.user import get_by_email, create_user
 from utils.security import hash_password, verify_password
 
 def signup_service(db, data):
-    # verificar si existe
     if get_by_email(db, data.email):
         raise Exception("El correo ya está registrado 🤨")
 
