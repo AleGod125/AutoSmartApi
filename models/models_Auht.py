@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, TIMESTAMP, text
+from sqlalchemy.orm import relationship
 from db import Base
 
 class User(Base):
@@ -11,3 +12,6 @@ class User(Base):
     phone = Column(String)
     role = Column(String, nullable=False, server_default="user")
     created_at = Column(TIMESTAMP, server_default=text("NOW()"))
+
+    vehiculos = relationship("Vehicle", back_populates="propietario")
+
